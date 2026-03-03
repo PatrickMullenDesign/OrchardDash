@@ -331,9 +331,9 @@
       const SUPABASE_URL = 'https://uopifdvhmqfignfffqms.supabase.co';
       const SUPABASE_ANON_KEY = 'sb_publishable_Ml2kp7O6Wog8g9-EJLqR8A_G_RR6I97';
 
-      let supabase;
+      let supabaseClient;
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       } catch (e) {
         console.error('Failed to initialize Supabase:', e);
       }
@@ -343,10 +343,10 @@
       // =====================================================
 
       async function fetchHighScores() {
-        if (!supabase) return [];
+        if (!supabaseClient) return [];
 
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseClient
             .from('high_scores')
             .select('*')
             .order('score', { ascending: false })
@@ -361,10 +361,10 @@
       }
 
       async function submitHighScore(playerName, score, levelReached) {
-        if (!supabase) return null;
+        if (!supabaseClient) return null;
 
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseClient
             .from('high_scores')
             .insert([
               {
