@@ -16,6 +16,7 @@
         height: 100%;
         overflow: hidden;
         background-color: #1a1a2e;
+        font-family: Arial, sans-serif;
       }
 
       body {
@@ -27,7 +28,6 @@
       #gameCanvas {
         display: block;
         background-color: #000;
-        /* CSS will scale this while maintaining aspect ratio */
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
@@ -46,7 +46,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        font-family: Arial, sans-serif;
         text-align: center;
         padding: 20px;
         z-index: 1000;
@@ -73,7 +72,6 @@
         opacity: 0.8;
       }
 
-      /* Show rotate message on portrait mobile screens */
       @media (orientation: portrait) and (max-width: 768px) {
         #rotateMessage {
           display: flex;
@@ -82,29 +80,420 @@
           display: none;
         }
       }
+
+      /* High Score Input Overlay */
+      #highScoreOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+
+      #highScoreOverlay.visible {
+        display: flex;
+      }
+
+      .high-score-container {
+        background: linear-gradient(135deg, #2d5a27 0%, #1a3a15 100%);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        color: white;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      }
+
+      .high-score-container h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+        color: #ffd700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+
+      .high-score-container .final-score {
+        font-size: 48px;
+        font-weight: bold;
+        margin: 20px 0;
+        color: #fff;
+      }
+
+      .high-score-container .level-info {
+        font-size: 18px;
+        opacity: 0.8;
+        margin-bottom: 20px;
+      }
+
+      .new-high-score {
+        background: #ffd700;
+        color: #1a3a15;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 20px;
+        display: inline-block;
+        animation: pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+
+      .name-input-section {
+        margin: 20px 0;
+      }
+
+      .name-input-section label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      .name-input-section input {
+        width: 200px;
+        padding: 12px 16px;
+        font-size: 20px;
+        border: none;
+        border-radius: 10px;
+        text-align: center;
+        text-transform: uppercase;
+        background: #fff;
+        color: #333;
+      }
+
+      .name-input-section input:focus {
+        outline: 3px solid #ffd700;
+      }
+
+      .submit-btn {
+        background: #ffd700;
+        color: #1a3a15;
+        border: none;
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 25px;
+        cursor: pointer;
+        margin: 10px;
+        transition: transform 0.2s, background 0.2s;
+      }
+
+      .submit-btn:hover {
+        transform: scale(1.05);
+        background: #ffed4a;
+      }
+
+      .submit-btn:disabled {
+        background: #666;
+        color: #999;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .play-again-btn {
+        background: #4a9c4a;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 25px;
+        cursor: pointer;
+        margin: 10px;
+        transition: transform 0.2s;
+      }
+
+      .play-again-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .leaderboard {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .leaderboard h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #ffd700;
+        font-size: 24px;
+      }
+
+      .leaderboard-list {
+        background: rgba(0,0,0,0.3);
+        border-radius: 10px;
+        padding: 15px;
+        max-height: 250px;
+        overflow-y: auto;
+      }
+
+      .leaderboard-entry {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 16px;
+      }
+
+      .leaderboard-entry:last-child {
+        border-bottom: none;
+      }
+
+      .leaderboard-entry .rank {
+        width: 30px;
+        color: #ffd700;
+        font-weight: bold;
+      }
+
+      .leaderboard-entry .name {
+        flex: 1;
+        text-transform: uppercase;
+      }
+
+      .leaderboard-entry .score {
+        font-weight: bold;
+        color: #90EE90;
+      }
+
+      .leaderboard-entry.current-player {
+        background: rgba(255, 215, 0, 0.2);
+        border-radius: 5px;
+      }
+
+      .loading {
+        color: #aaa;
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .error {
+        color: #ff6b6b;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <!-- Rotate device message for portrait mode -->
+    <!-- Rotate device message -->
     <div id="rotateMessage">
       <div class="icon">📱</div>
       <h2>Please Rotate Your Device</h2>
       <p>Orchard Dash plays best in landscape mode</p>
     </div>
 
+    <!-- High Score Overlay -->
+    <div id="highScoreOverlay">
+      <div class="high-score-container">
+        <h1>🍎 Game Over! 🍎</h1>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="level-info" id="levelInfo">Level 1</div>
+
+        <div id="newHighScoreSection" style="display: none;">
+          <div class="new-high-score">🏆 NEW HIGH SCORE! 🏆</div>
+          <div class="name-input-section">
+            <label for="playerName">Enter your name:</label>
+            <input type="text" id="playerName" maxlength="12" placeholder="YOUR NAME" autocomplete="off" />
+          </div>
+          <button class="submit-btn" id="submitScore">Submit Score</button>
+        </div>
+
+        <div class="leaderboard">
+          <h2>🏆 Top 10 Scores</h2>
+          <div class="leaderboard-list" id="leaderboardList">
+            <div class="loading">Loading scores...</div>
+          </div>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+      </div>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
       // =====================================================
-      // ORCHARD DASH - Falling Objects Game with Levels
-      // Responsive version with touch support
+      // SUPABASE CONFIGURATION
       // =====================================================
 
-      // Fixed game resolution (16:9 aspect ratio)
+      const SUPABASE_URL = 'https://uopifdvhmqfignfffqms.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_Ml2kp7O6Wog8g9-EJLqR8A_G_RR6I97';
+
+      let supabase;
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (e) {
+        console.error('Failed to initialize Supabase:', e);
+      }
+
+      // =====================================================
+      // HIGH SCORE FUNCTIONS
+      // =====================================================
+
+      async function fetchHighScores() {
+        if (!supabase) return [];
+
+        try {
+          const { data, error } = await supabase
+            .from('high_scores')
+            .select('*')
+            .order('score', { ascending: false })
+            .limit(10);
+
+          if (error) throw error;
+          return data || [];
+        } catch (e) {
+          console.error('Error fetching high scores:', e);
+          return [];
+        }
+      }
+
+      async function submitHighScore(playerName, score, levelReached) {
+        if (!supabase) return null;
+
+        try {
+          const { data, error } = await supabase
+            .from('high_scores')
+            .insert([
+              {
+                player_name: playerName.toUpperCase().trim(),
+                score: score,
+                level_reached: levelReached
+              }
+            ])
+            .select()
+            .single();
+
+          if (error) throw error;
+          return data;
+        } catch (e) {
+          console.error('Error submitting score:', e);
+          return null;
+        }
+      }
+
+      async function checkIfHighScore(score) {
+        const scores = await fetchHighScores();
+        if (scores.length < 10) return true;
+        const lowestTopScore = scores[scores.length - 1]?.score || 0;
+        return score > lowestTopScore;
+      }
+
+      function renderLeaderboard(scores, currentPlayerId = null) {
+        const list = document.getElementById('leaderboardList');
+
+        if (scores.length === 0) {
+          list.innerHTML = '<div class="loading">No scores yet. Be the first!</div>';
+          return;
+        }
+
+        list.innerHTML = scores.map((entry, index) => `
+          <div class="leaderboard-entry ${entry.id === currentPlayerId ? 'current-player' : ''}">
+            <span class="rank">${index + 1}.</span>
+            <span class="name">${entry.player_name}</span>
+            <span class="score">${entry.score.toLocaleString()}</span>
+          </div>
+        `).join('');
+      }
+
+      // =====================================================
+      // GAME OVER UI
+      // =====================================================
+
+      async function showGameOverScreen(finalScore, levelReached) {
+        const overlay = document.getElementById('highScoreOverlay');
+        const finalScoreEl = document.getElementById('finalScore');
+        const levelInfoEl = document.getElementById('levelInfo');
+        const newHighScoreSection = document.getElementById('newHighScoreSection');
+        const playerNameInput = document.getElementById('playerName');
+        const submitBtn = document.getElementById('submitScore');
+
+        // Update display
+        finalScoreEl.textContent = finalScore.toLocaleString();
+        levelInfoEl.textContent = `Level ${levelReached}`;
+
+        // Show overlay
+        overlay.classList.add('visible');
+
+        // Load leaderboard
+        const scores = await fetchHighScores();
+        renderLeaderboard(scores);
+
+        // Check if this is a high score
+        const isHighScore = await checkIfHighScore(finalScore);
+
+        if (isHighScore && finalScore > 0) {
+          newHighScoreSection.style.display = 'block';
+          playerNameInput.value = '';
+          playerNameInput.focus();
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Score';
+        } else {
+          newHighScoreSection.style.display = 'none';
+        }
+      }
+
+      function hideGameOverScreen() {
+        const overlay = document.getElementById('highScoreOverlay');
+        overlay.classList.remove('visible');
+      }
+
+      // Event listeners for high score UI
+      document.getElementById('submitScore').addEventListener('click', async () => {
+        const playerName = document.getElementById('playerName').value.trim();
+        const submitBtn = document.getElementById('submitScore');
+
+        if (!playerName) {
+          alert('Please enter your name!');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        const result = await submitHighScore(playerName, score, currentLevel);
+
+        if (result) {
+          const scores = await fetchHighScores();
+          renderLeaderboard(scores, result.id);
+          document.getElementById('newHighScoreSection').style.display = 'none';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Score';
+          alert('Failed to submit score. Please try again.');
+        }
+      });
+
+      document.getElementById('playerName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('submitScore').click();
+        }
+      });
+
+      document.getElementById('playAgainBtn').addEventListener('click', () => {
+        hideGameOverScreen();
+        resetGame();
+      });
+
+      // =====================================================
+      // GAME CONFIGURATION
+      // =====================================================
+
       const GAME_WIDTH = 1280;
       const GAME_HEIGHT = 720;
 
-      // Set up the canvas
       const canvas = document.getElementById("gameCanvas");
       canvas.width = GAME_WIDTH;
       canvas.height = GAME_HEIGHT;
@@ -121,11 +510,9 @@
         const gameRatio = GAME_WIDTH / GAME_HEIGHT;
 
         if (windowRatio > gameRatio) {
-          // Window is wider than game - fit to height
           canvas.style.height = windowHeight + 'px';
           canvas.style.width = (windowHeight * gameRatio) + 'px';
         } else {
-          // Window is taller than game - fit to width
           canvas.style.width = windowWidth + 'px';
           canvas.style.height = (windowWidth / gameRatio) + 'px';
         }
@@ -134,7 +521,6 @@
       window.addEventListener("resize", resizeCanvas);
       resizeCanvas();
 
-      // Convert screen coordinates to game coordinates
       function screenToGame(screenX, screenY) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = GAME_WIDTH / rect.width;
@@ -214,7 +600,7 @@
           id: 3,
           objectImage: greenAppleImage,
           scorePerObject: 2000,
-          completionScore: Infinity, // Endless mode
+          completionScore: Infinity,
           difficultyMultiplier: 1.5,
         },
       ];
@@ -228,7 +614,6 @@
         const x = Math.random() * (GAME_WIDTH - size);
         const speed = (2 + Math.random() * 2) * difficultyMultiplier;
 
-        // Determine the type of object
         const isOneUp = Math.random() < 0.05;
         const isGolden = !isOneUp && Math.random() < 0.08;
         const isHarmful = !isOneUp && !isGolden && Math.random() < 0.3;
@@ -267,15 +652,12 @@
         ctx.font = "bold 28px Arial";
         ctx.textBaseline = "top";
 
-        // Score (left)
         ctx.textAlign = "left";
         ctx.fillText(`Score: ${score.toLocaleString()}`, 24, 20);
 
-        // Level (center)
         ctx.textAlign = "center";
         ctx.fillText(`Level ${currentLevel}`, GAME_WIDTH / 2, 20);
 
-        // Lives (right)
         ctx.textAlign = "right";
         ctx.fillText(`Lives: ${lives}`, GAME_WIDTH - 24, 20);
       }
@@ -284,7 +666,6 @@
         if (homeScreenImage.complete) {
           ctx.drawImage(homeScreenImage, 0, 0, GAME_WIDTH, GAME_HEIGHT);
         } else {
-          // Fallback if image not loaded
           ctx.fillStyle = "#2d5a27";
           ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
@@ -298,25 +679,6 @@
         }
       }
 
-      function drawGameOver() {
-        // Semi-transparent overlay
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-
-        ctx.font = "bold 64px Arial";
-        ctx.fillText("Game Over!", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
-
-        ctx.font = "32px Arial";
-        ctx.fillText(`Final Score: ${score.toLocaleString()}`, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
-
-        ctx.font = "24px Arial";
-        ctx.fillStyle = "#aaa";
-        ctx.fillText("Tap or Click to Play Again", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70);
-      }
-
       // =====================================================
       // GAME LOGIC
       // =====================================================
@@ -324,13 +686,11 @@
       function update() {
         if (gameOver) return;
 
-        // Move objects with acceleration
         objects.forEach((obj) => {
           obj.y += obj.speed;
           obj.speed += 0.02;
         });
 
-        // Check for collisions
         objects = objects.filter((obj) => {
           const isColliding =
             obj.y + obj.size >= basket.y &&
@@ -343,7 +703,10 @@
               lives++;
             } else if (obj.isHarmful) {
               lives--;
-              if (lives <= 0) gameOver = true;
+              if (lives <= 0) {
+                gameOver = true;
+                showGameOverScreen(score, currentLevel);
+              }
             } else {
               if (obj.isGolden) {
                 score += 1000000;
@@ -353,7 +716,6 @@
                 levelScore += 1;
               }
 
-              // Level progression
               if (levelScore >= levels[currentLevel - 1].completionScore && currentLevel < levels.length) {
                 currentLevel++;
                 levelScore = 0;
@@ -364,24 +726,25 @@
           } else if (obj.y > GAME_HEIGHT) {
             if (!obj.isHarmful && !obj.isOneUp) {
               lives--;
-              if (lives <= 0) gameOver = true;
+              if (lives <= 0) {
+                gameOver = true;
+                showGameOverScreen(score, currentLevel);
+              }
             }
             return false;
           }
           return true;
         });
 
-        // Spawn new objects
         if (Math.random() < 0.015) {
           createObject();
         }
 
-        // Gradually increase difficulty
         difficultyMultiplier += 0.00005;
       }
 
       function moveBasket(x, y) {
-        const offsetY = 100; // Basket appears above finger on touch devices
+        const offsetY = 100;
         basket.x = Math.max(0, Math.min(x - basket.width / 2, GAME_WIDTH - basket.width));
         basket.y = Math.max(GAME_HEIGHT / 2, Math.min(y - offsetY - basket.height / 2, GAME_HEIGHT - basket.height));
       }
@@ -404,24 +767,19 @@
       // INPUT HANDLING
       // =====================================================
 
-      // Mouse movement
       canvas.addEventListener("mousemove", (e) => {
         if (!gameStarted || gameOver) return;
         const pos = screenToGame(e.clientX, e.clientY);
         moveBasket(pos.x, pos.y);
       });
 
-      // Mouse click
       canvas.addEventListener("click", (e) => {
         if (!gameStarted) {
           gameStarted = true;
           gameLoop();
-        } else if (gameOver) {
-          resetGame();
         }
       });
 
-      // Touch movement
       canvas.addEventListener("touchmove", (e) => {
         e.preventDefault();
         if (!gameStarted || gameOver) return;
@@ -430,23 +788,18 @@
         moveBasket(pos.x, pos.y);
       }, { passive: false });
 
-      // Touch start (for starting/restarting game)
       canvas.addEventListener("touchstart", (e) => {
         e.preventDefault();
         if (!gameStarted) {
           gameStarted = true;
           gameLoop();
-        } else if (gameOver) {
-          resetGame();
-        } else {
-          // Also move basket on touch start
+        } else if (!gameOver) {
           const touch = e.touches[0];
           const pos = screenToGame(touch.clientX, touch.clientY);
           moveBasket(pos.x, pos.y);
         }
       }, { passive: false });
 
-      // Prevent default touch behaviors (scrolling, zooming)
       document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
 
       // =====================================================
@@ -461,7 +814,6 @@
           return;
         }
 
-        // Draw background
         if (backgroundImage.complete) {
           ctx.drawImage(backgroundImage, 0, 0, GAME_WIDTH, GAME_HEIGHT);
         }
@@ -471,9 +823,7 @@
         drawScore();
         update();
 
-        if (gameOver) {
-          drawGameOver();
-        } else {
+        if (!gameOver) {
           requestAnimationFrame(gameLoop);
         }
       }
@@ -482,12 +832,10 @@
       // INITIALIZATION
       // =====================================================
 
-      // Wait for home screen image, then draw start screen
       homeScreenImage.onload = () => {
         drawStartScreen();
       };
 
-      // Fallback: draw start screen after short delay even if image fails
       setTimeout(() => {
         if (!gameStarted) {
           drawStartScreen();
