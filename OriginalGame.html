@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Orchard Dash - Senna and Dad's Video Game</title>
+    <!-- 8-bit pixel font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
       * {
         margin: 0;
@@ -81,7 +85,7 @@
         }
       }
 
-      /* High Score Input Overlay */
+      /* High Score Input Overlay - 8-bit Retro Style */
       #highScoreOverlay {
         display: none;
         position: fixed;
@@ -89,10 +93,12 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
+        background-color: rgba(0, 0, 0, 0.95);
         justify-content: center;
         align-items: center;
         z-index: 100;
+        font-family: 'Press Start 2P', monospace;
+        image-rendering: pixelated;
       }
 
       #highScoreOverlay.visible {
@@ -100,147 +106,159 @@
       }
 
       .high-score-container {
-        background: linear-gradient(135deg, #2d5a27 0%, #1a3a15 100%);
-        border-radius: 20px;
-        padding: 30px;
-        max-width: 500px;
+        background: #000;
+        border: 8px solid #ffd700;
+        box-shadow:
+          0 0 0 4px #000,
+          0 0 0 8px #92400e,
+          inset 0 0 0 4px #1a1a2e;
+        padding: 24px 32px;
+        max-width: 480px;
         width: 90%;
         text-align: center;
-        color: white;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      }
-
-      .high-score-container h1 {
-        font-size: 36px;
-        margin-bottom: 10px;
-        color: #ffd700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-
-      .high-score-container .final-score {
-        font-size: 48px;
-        font-weight: bold;
-        margin: 20px 0;
         color: #fff;
       }
 
-      .high-score-container .level-info {
+      .high-score-container h1 {
         font-size: 18px;
-        opacity: 0.8;
-        margin-bottom: 20px;
+        margin-bottom: 8px;
+        color: #ff0000;
+        text-shadow:
+          4px 4px 0 #8b0000,
+          -1px -1px 0 #000,
+          1px -1px 0 #000,
+          -1px 1px 0 #000,
+          1px 1px 0 #000;
+        letter-spacing: 2px;
+      }
+
+      .high-score-container .final-score {
+        font-size: 32px;
+        margin: 16px 0;
+        color: #00ff00;
+        text-shadow: 4px 4px 0 #006400;
+      }
+
+      .high-score-container .level-info {
+        font-size: 10px;
+        color: #888;
+        margin-bottom: 16px;
+        letter-spacing: 1px;
       }
 
       .new-high-score {
-        background: #ffd700;
-        color: #1a3a15;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: bold;
-        font-size: 18px;
-        margin-bottom: 20px;
+        background: #000;
+        color: #ffd700;
+        padding: 8px 16px;
+        border: 4px solid #ffd700;
+        font-size: 10px;
+        margin-bottom: 16px;
         display: inline-block;
-        animation: pulse 1s ease-in-out infinite;
+        animation: blink 0.5s step-start infinite;
+        letter-spacing: 1px;
       }
 
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+      @keyframes blink {
+        50% { opacity: 0; }
       }
 
       .name-input-section {
-        margin: 20px 0;
+        margin: 16px 0;
       }
 
       .name-input-section label {
         display: block;
-        margin-bottom: 10px;
-        font-size: 16px;
+        margin-bottom: 12px;
+        font-size: 10px;
+        color: #0ff;
+        letter-spacing: 1px;
       }
 
       .name-input-section input {
-        width: 200px;
+        width: 220px;
         padding: 12px 16px;
-        font-size: 20px;
-        border: none;
-        border-radius: 10px;
+        font-family: 'Press Start 2P', monospace;
+        font-size: 14px;
+        border: 4px solid #0ff;
+        background: #001a1a;
+        color: #0ff;
         text-align: center;
         text-transform: uppercase;
-        background: #fff;
-        color: #333;
+        letter-spacing: 2px;
+      }
+
+      .name-input-section input::placeholder {
+        color: #066;
       }
 
       .name-input-section input:focus {
-        outline: 3px solid #ffd700;
+        outline: none;
+        border-color: #ffd700;
+        color: #ffd700;
+        background: #1a1a00;
       }
 
-      .submit-btn {
-        background: #ffd700;
-        color: #1a3a15;
-        border: none;
-        padding: 12px 30px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 25px;
+      .submit-btn, .play-again-btn {
+        font-family: 'Press Start 2P', monospace;
+        background: #000;
+        color: #0f0;
+        border: 4px solid #0f0;
+        padding: 12px 24px;
+        font-size: 10px;
         cursor: pointer;
-        margin: 10px;
-        transition: transform 0.2s, background 0.2s;
+        margin: 8px;
+        letter-spacing: 1px;
+        transition: none;
       }
 
-      .submit-btn:hover {
-        transform: scale(1.05);
-        background: #ffed4a;
+      .submit-btn:hover, .play-again-btn:hover {
+        background: #0f0;
+        color: #000;
+      }
+
+      .submit-btn:active, .play-again-btn:active {
+        transform: translate(2px, 2px);
       }
 
       .submit-btn:disabled {
-        background: #666;
-        color: #999;
+        border-color: #333;
+        color: #333;
         cursor: not-allowed;
-        transform: none;
       }
 
-      .play-again-btn {
-        background: #4a9c4a;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 25px;
-        cursor: pointer;
-        margin: 10px;
-        transition: transform 0.2s;
-      }
-
-      .play-again-btn:hover {
-        transform: scale(1.05);
+      .submit-btn:disabled:hover {
+        background: #000;
+        color: #333;
       }
 
       .leaderboard {
-        margin-top: 30px;
+        margin-top: 24px;
         text-align: left;
       }
 
       .leaderboard h2 {
         text-align: center;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         color: #ffd700;
-        font-size: 24px;
+        font-size: 12px;
+        letter-spacing: 2px;
       }
 
       .leaderboard-list {
-        background: rgba(0,0,0,0.3);
-        border-radius: 10px;
-        padding: 15px;
-        max-height: 250px;
+        background: #0a0a0a;
+        border: 4px solid #333;
+        padding: 8px;
+        max-height: 200px;
         overflow-y: auto;
       }
 
       .leaderboard-entry {
         display: flex;
         justify-content: space-between;
-        padding: 8px 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        font-size: 16px;
+        padding: 6px 4px;
+        border-bottom: 2px dotted #222;
+        font-size: 8px;
+        letter-spacing: 1px;
       }
 
       .leaderboard-entry:last-child {
@@ -248,38 +266,40 @@
       }
 
       .leaderboard-entry .rank {
-        width: 30px;
+        width: 32px;
         color: #ffd700;
-        font-weight: bold;
       }
 
       .leaderboard-entry .name {
         flex: 1;
         text-transform: uppercase;
+        color: #0ff;
       }
 
       .leaderboard-entry .score {
-        font-weight: bold;
-        color: #90EE90;
+        color: #0f0;
+        text-align: right;
+        min-width: 80px;
       }
 
       .leaderboard-entry.current-player {
-        background: rgba(255, 215, 0, 0.2);
-        border-radius: 5px;
+        background: #1a1a00;
+        border: 2px solid #ffd700;
       }
 
       .loading {
-        color: #aaa;
-        font-style: italic;
+        color: #666;
         text-align: center;
-        padding: 20px;
+        padding: 16px;
+        font-size: 8px;
+        animation: blink 1s step-start infinite;
       }
 
       .error {
-        color: #ff6b6b;
+        color: #f00;
         text-align: center;
-        padding: 10px;
-        font-size: 14px;
+        padding: 8px;
+        font-size: 8px;
       }
     </style>
   </head>
@@ -294,27 +314,27 @@
     <!-- High Score Overlay -->
     <div id="highScoreOverlay">
       <div class="high-score-container">
-        <h1>🍎 Game Over! 🍎</h1>
+        <h1>GAME OVER</h1>
         <div class="final-score" id="finalScore">0</div>
-        <div class="level-info" id="levelInfo">Level 1</div>
+        <div class="level-info" id="levelInfo">LEVEL 1</div>
 
         <div id="newHighScoreSection" style="display: none;">
-          <div class="new-high-score">🏆 NEW HIGH SCORE! 🏆</div>
+          <div class="new-high-score">* NEW HIGH SCORE *</div>
           <div class="name-input-section">
-            <label for="playerName">Enter your name:</label>
-            <input type="text" id="playerName" maxlength="12" placeholder="YOUR NAME" autocomplete="off" />
+            <label for="playerName">ENTER NAME:</label>
+            <input type="text" id="playerName" maxlength="10" placeholder="AAA" autocomplete="off" />
           </div>
-          <button class="submit-btn" id="submitScore">Submit Score</button>
+          <button class="submit-btn" id="submitScore">SUBMIT</button>
         </div>
 
         <div class="leaderboard">
-          <h2>🏆 Top 10 Scores</h2>
+          <h2>- HIGH SCORES -</h2>
           <div class="leaderboard-list" id="leaderboardList">
-            <div class="loading">Loading scores...</div>
+            <div class="loading">LOADING...</div>
           </div>
         </div>
 
-        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+        <button class="play-again-btn" id="playAgainBtn">PLAY AGAIN</button>
       </div>
     </div>
 
@@ -395,7 +415,7 @@
         const list = document.getElementById('leaderboardList');
 
         if (scores.length === 0) {
-          list.innerHTML = '<div class="loading">No scores yet. Be the first!</div>';
+          list.innerHTML = '<div class="loading">NO SCORES YET</div>';
           return;
         }
 
@@ -422,7 +442,7 @@
 
         // Update display
         finalScoreEl.textContent = finalScore.toLocaleString();
-        levelInfoEl.textContent = `Level ${levelReached}`;
+        levelInfoEl.textContent = `LEVEL ${levelReached}`;
 
         // Show overlay
         overlay.classList.add('visible');
