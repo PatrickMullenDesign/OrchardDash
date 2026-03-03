@@ -1,0 +1,11 @@
+<svg width="168" height="168" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="78" y="72" width="12" height="12" fill="#015100"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M126 0V12V24V36H114V48H90V72H78V36V24V12H90V0H102H126ZM102 36V24H114V12L102 12V24H90V36H102Z" fill="#1A41CF"/>
+<rect x="102" y="24" width="12" height="12" transform="rotate(90 102 24)" fill="#1368E8"/>
+<rect x="114" y="12" width="12" height="12" transform="rotate(90 114 12)" fill="#1368E8"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M126 72H42V84H30V132V144H54V156H114V144H138V132V84H126V72Z" fill="#1368E8"/>
+<rect x="30" y="132" width="12" height="12" fill="#1A41CF"/>
+<rect x="42" y="96" width="12" height="24" fill="white"/>
+<rect x="54" y="120" width="12" height="12" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M78 60H42V72H30V84H18V132H30V84H42V72H78V60ZM78 156H54V144H42V156H54V168H78V156ZM90 156H78V144H90V156ZM114 156V168H90V156H114ZM126 144V156H114V144H126ZM138 132V144H126V132H138ZM138 84V132H150V84H138ZM126 72V84H138V72H126ZM126 72H90V60H126V72Z" fill="#1A41CF"/>
+</svg>

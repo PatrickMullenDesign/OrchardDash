@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Senna and Dad's Video Game</title>
+  </head>
+  <body>
+    <script>
+      // Falling Objects Game with SVG
+
+      // Set up the canvas and context
+      const canvas = document.createElement("canvas");
+      canvas.width = 1512;
+      canvas.height = 982;
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext("2d");
+
+      // Game state variables
+      let basket = { x: 56, y: 56, width: 56, height: 56 }; // Adjusted for SVG size
+      let objects = [];
+      let score = 0;
+      let lives = 5;
+      let gameOver = false;
+      let gameStarted = false;
+
+      // Load the SVG images
+      const appleImage = new Image();
+      appleImage.src = "apple.svg"; // Replace with your apple SVG path
+
+      const basketImage = new Image();
+      basketImage.src = "basket.svg"; // Replace with your basket SVG path
+
+      const backgroundImage = new Image();
+      backgroundImage.src = "background.svg"; // Replace with your background SVG path
+
+      const coverImage = new Image();
+      coverImage.src = "cover.webp"; // Start screen image
+
+      // Ensure all images are loaded
+      appleImage.onload = () => console.log("Apple SVG loaded.");
+      basketImage.onload = () => console.log("Basket SVG loaded.");
+      backgroundImage.onload = () => console.log("Background SVG loaded.");
+      coverImage.onload = () => {
+        console.log("Cover image loaded.");
+        drawStartScreen(); // Draw start screen once cover is loaded
+      };
+
+      // Generate a random object
+      function createObject() {
+        const x = Math.random() * (canvas.width - 40); // Adjust for image width
+        const size = 40; // Set size for the apple SVG
+        const speed = 0.5 + Math.random() * 2; // Slower speed range
+        objects.push({ x, y: 0, size, speed, image: appleImage });
+      }
+
+      // Draw the basket
+      function drawBasket() {
+        if (basketImage.complete) {
+          ctx.drawImage(
+            basketImage,
+            basket.x,
+            basket.y,
+            basket.width,
+            basket.height
+          );
+        }
+      }
+
+      // Draw the falling objects
+      function drawObjects() {
+        objects.forEach((obj) => {
+          if (obj.image.complete) {
+            ctx.drawImage(obj.image, obj.x, obj.y, obj.size, obj.size);
+          }
+        });
+      }
+
+      // Draw the score and lives
+      function drawScore() {
+        ctx.fillStyle = "white";
+        ctx.font = "24px comic-sans";
+        ctx.fillText(`Score: ${score}`, 10, 20);
+        ctx.fillText(`Lives: ${lives}`, canvas.width - 100, 20);
+      }
+
+      // Draw the background
+      function drawBackground() {
+        if (backgroundImage.complete) {
+          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      // Update game state
+      function update() {
+        if (gameOver) return;
+
+        // Move objects
+        objects.forEach((obj) => {
+          obj.y += obj.speed;
+        });
+
+        // Check for collisions
+        objects = objects.filter((obj) => {
+          const caught =
+            obj.y + obj.size >= basket.y &&
+            obj.x < basket.x + basket.width &&
+            obj.x + obj.size > basket.x;
+
+          if (caught) {
+            score += 1000; // Increment score by 10 for each apple
+            console.log(`Object caught! Score: ${score}`);
+            return false; // Remove the object
+          }
+
+          const missed = obj.y > canvas.height;
+
+          if (missed) {
+            lives--;
+            console.log(`Object missed! Lives remaining: ${lives}`);
+            if (lives <= 0) {
+              gameOver = true;
+              console.log("Game Over!");
+            }
+            return false; // Remove the object
+          }
+
+          return true; // Keep the object
+        });
+
+        // Add new objects periodically (2% chance per frame)
+        if (Math.random() < 0.02) {
+          createObject();
+        }
+      }
+
+      // Handle mouse movement
+      canvas.addEventListener("mousemove", (e) => {
+        if (!gameStarted) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Update basket's x and y positions
+        basket.x = Math.max(
+          0,
+          Math.min(mouseX - basket.width / 2, canvas.width - basket.width)
+        );
+        basket.y = Math.max(
+          0,
+          Math.min(mouseY - basket.height / 2, canvas.height - basket.height)
+        );
+      });
+
+      // Handle click to start the game
+      canvas.addEventListener("click", () => {
+        if (!gameStarted) {
+          gameStarted = true;
+          gameLoop();
+        }
+      });
+
+      // Main game loop
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the background
+        drawBackground();
+
+        if (!gameStarted) {
+          drawStartScreen();
+          return;
+        }
+
+        drawBasket();
+        drawObjects();
+        drawScore();
+        update();
+
+        if (gameOver) {
+          ctx.fillStyle = "black";
+          ctx.font = "40px Arial";
+          ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2);
+        } else {
+          requestAnimationFrame(gameLoop);
+        }
+      }
+
+      // Draw the start screen with full-screen image
+      function drawStartScreen() {
+        if (!coverImage.complete) return; // Wait for image to load
+
+        ctx.drawImage(coverImage, 0, 0, canvas.width, canvas.height);
+
+        // Draw the "Click anywhere to start" text
+        ctx.fillStyle = "white";
+        ctx.font = "48px Courier";
+        const startText = "Click anywhere to start";
+        const startTextWidth = ctx.measureText(startText).width;
+        ctx.fillText(
+          startText,
+          (canvas.width - startTextWidth) / 2,
+          canvas.height / 2 + 30
+        );
+      }
+
+      // Start screen will be drawn when coverImage loads (see onload above)
+    </script>
+  </body>
+</html>

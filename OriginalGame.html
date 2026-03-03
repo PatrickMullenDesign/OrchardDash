@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Orchard Dash - Senna and Dad's Video Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #1a1a2e;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #gameCanvas {
+        display: block;
+        background-color: #000;
+        /* CSS will scale this while maintaining aspect ratio */
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      /* Portrait mode message */
+      #rotateMessage {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1a1a2e;
+        color: white;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        z-index: 1000;
+      }
+
+      #rotateMessage .icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        animation: rotate 2s ease-in-out infinite;
+      }
+
+      @keyframes rotate {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(90deg); }
+      }
+
+      #rotateMessage h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      #rotateMessage p {
+        font-size: 16px;
+        opacity: 0.8;
+      }
+
+      /* Show rotate message on portrait mobile screens */
+      @media (orientation: portrait) and (max-width: 768px) {
+        #rotateMessage {
+          display: flex;
+        }
+        #gameCanvas {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Rotate device message for portrait mode -->
+    <div id="rotateMessage">
+      <div class="icon">📱</div>
+      <h2>Please Rotate Your Device</h2>
+      <p>Orchard Dash plays best in landscape mode</p>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+      // =====================================================
+      // ORCHARD DASH - Falling Objects Game with Levels
+      // Responsive version with touch support
+      // =====================================================
+
+      // Fixed game resolution (16:9 aspect ratio)
+      const GAME_WIDTH = 1280;
+      const GAME_HEIGHT = 720;
+
+      // Set up the canvas
+      const canvas = document.getElementById("gameCanvas");
+      canvas.width = GAME_WIDTH;
+      canvas.height = GAME_HEIGHT;
+      const ctx = canvas.getContext("2d");
+
+      // =====================================================
+      // RESPONSIVE SCALING
+      // =====================================================
+
+      function resizeCanvas() {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const windowRatio = windowWidth / windowHeight;
+        const gameRatio = GAME_WIDTH / GAME_HEIGHT;
+
+        if (windowRatio > gameRatio) {
+          // Window is wider than game - fit to height
+          canvas.style.height = windowHeight + 'px';
+          canvas.style.width = (windowHeight * gameRatio) + 'px';
+        } else {
+          // Window is taller than game - fit to width
+          canvas.style.width = windowWidth + 'px';
+          canvas.style.height = (windowWidth / gameRatio) + 'px';
+        }
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      // Convert screen coordinates to game coordinates
+      function screenToGame(screenX, screenY) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = GAME_WIDTH / rect.width;
+        const scaleY = GAME_HEIGHT / rect.height;
+        return {
+          x: (screenX - rect.left) * scaleX,
+          y: (screenY - rect.top) * scaleY
+        };
+      }
+
+      // =====================================================
+      // LOAD IMAGES
+      // =====================================================
+
+      const backgroundImage = new Image();
+      backgroundImage.src = "background.svg";
+
+      const basketImage = new Image();
+      basketImage.src = "basket.svg";
+
+      const appleImage = new Image();
+      appleImage.src = "apple.svg";
+
+      const mixedAppleImage = new Image();
+      mixedAppleImage.src = "greenredapple.svg";
+
+      const greenAppleImage = new Image();
+      greenAppleImage.src = "greenapple.svg";
+
+      const goldenAppleImage = new Image();
+      goldenAppleImage.src = "goldenapple.svg";
+
+      const rottenAppleImage = new Image();
+      rottenAppleImage.src = "rottenapple.svg";
+
+      const oneUpImage = new Image();
+      oneUpImage.src = "1up.svg";
+
+      const homeScreenImage = new Image();
+      homeScreenImage.src = "startscreen.svg";
+
+      // =====================================================
+      // GAME STATE
+      // =====================================================
+
+      let basket = {
+        x: GAME_WIDTH / 2 - 50,
+        y: GAME_HEIGHT - 80,
+        width: 100,
+        height: 50
+      };
+      let objects = [];
+      let score = 0;
+      let lives = 3;
+      let gameOver = false;
+      let gameStarted = false;
+      let difficultyMultiplier = 1;
+      let currentLevel = 1;
+      let levelScore = 0;
+
+      const levels = [
+        {
+          id: 1,
+          objectImage: appleImage,
+          scorePerObject: 100,
+          completionScore: 20,
+          difficultyMultiplier: 1,
+        },
+        {
+          id: 2,
+          objectImage: mixedAppleImage,
+          scorePerObject: 500,
+          completionScore: 40,
+          difficultyMultiplier: 1.2,
+        },
+        {
+          id: 3,
+          objectImage: greenAppleImage,
+          scorePerObject: 2000,
+          completionScore: Infinity, // Endless mode
+          difficultyMultiplier: 1.5,
+        },
+      ];
+
+      // =====================================================
+      // GAME OBJECTS
+      // =====================================================
+
+      function createObject() {
+        const size = 56;
+        const x = Math.random() * (GAME_WIDTH - size);
+        const speed = (2 + Math.random() * 2) * difficultyMultiplier;
+
+        // Determine the type of object
+        const isOneUp = Math.random() < 0.05;
+        const isGolden = !isOneUp && Math.random() < 0.08;
+        const isHarmful = !isOneUp && !isGolden && Math.random() < 0.3;
+
+        objects.push({ x, y: -size, size, speed, isHarmful, isGolden, isOneUp });
+      }
+
+      // =====================================================
+      // DRAWING FUNCTIONS
+      // =====================================================
+
+      function drawBasket() {
+        if (basketImage.complete) {
+          ctx.drawImage(basketImage, basket.x, basket.y, basket.width, basket.height);
+        }
+      }
+
+      function drawObjects() {
+        objects.forEach((obj) => {
+          const img = obj.isOneUp
+            ? oneUpImage
+            : obj.isGolden
+            ? goldenAppleImage
+            : obj.isHarmful
+            ? rottenAppleImage
+            : levels[currentLevel - 1].objectImage;
+
+          if (img.complete) {
+            ctx.drawImage(img, obj.x, obj.y, obj.size, obj.size);
+          }
+        });
+      }
+
+      function drawScore() {
+        ctx.fillStyle = "white";
+        ctx.font = "bold 28px Arial";
+        ctx.textBaseline = "top";
+
+        // Score (left)
+        ctx.textAlign = "left";
+        ctx.fillText(`Score: ${score.toLocaleString()}`, 24, 20);
+
+        // Level (center)
+        ctx.textAlign = "center";
+        ctx.fillText(`Level ${currentLevel}`, GAME_WIDTH / 2, 20);
+
+        // Lives (right)
+        ctx.textAlign = "right";
+        ctx.fillText(`Lives: ${lives}`, GAME_WIDTH - 24, 20);
+      }
+
+      function drawStartScreen() {
+        if (homeScreenImage.complete) {
+          ctx.drawImage(homeScreenImage, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+        } else {
+          // Fallback if image not loaded
+          ctx.fillStyle = "#2d5a27";
+          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+          ctx.fillStyle = "white";
+          ctx.font = "bold 48px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("Orchard Dash", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+
+          ctx.font = "24px Arial";
+          ctx.fillText("Tap or Click to Start", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
+        }
+      }
+
+      function drawGameOver() {
+        // Semi-transparent overlay
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+
+        ctx.font = "bold 64px Arial";
+        ctx.fillText("Game Over!", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+
+        ctx.font = "32px Arial";
+        ctx.fillText(`Final Score: ${score.toLocaleString()}`, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
+
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "#aaa";
+        ctx.fillText("Tap or Click to Play Again", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70);
+      }
+
+      // =====================================================
+      // GAME LOGIC
+      // =====================================================
+
+      function update() {
+        if (gameOver) return;
+
+        // Move objects with acceleration
+        objects.forEach((obj) => {
+          obj.y += obj.speed;
+          obj.speed += 0.02;
+        });
+
+        // Check for collisions
+        objects = objects.filter((obj) => {
+          const isColliding =
+            obj.y + obj.size >= basket.y &&
+            obj.y <= basket.y + basket.height &&
+            obj.x < basket.x + basket.width &&
+            obj.x + obj.size > basket.x;
+
+          if (isColliding) {
+            if (obj.isOneUp) {
+              lives++;
+            } else if (obj.isHarmful) {
+              lives--;
+              if (lives <= 0) gameOver = true;
+            } else {
+              if (obj.isGolden) {
+                score += 1000000;
+                levelScore += 1;
+              } else {
+                score += levels[currentLevel - 1].scorePerObject;
+                levelScore += 1;
+              }
+
+              // Level progression
+              if (levelScore >= levels[currentLevel - 1].completionScore && currentLevel < levels.length) {
+                currentLevel++;
+                levelScore = 0;
+                difficultyMultiplier = levels[currentLevel - 1].difficultyMultiplier;
+              }
+            }
+            return false;
+          } else if (obj.y > GAME_HEIGHT) {
+            if (!obj.isHarmful && !obj.isOneUp) {
+              lives--;
+              if (lives <= 0) gameOver = true;
+            }
+            return false;
+          }
+          return true;
+        });
+
+        // Spawn new objects
+        if (Math.random() < 0.015) {
+          createObject();
+        }
+
+        // Gradually increase difficulty
+        difficultyMultiplier += 0.00005;
+      }
+
+      function moveBasket(x, y) {
+        const offsetY = 100; // Basket appears above finger on touch devices
+        basket.x = Math.max(0, Math.min(x - basket.width / 2, GAME_WIDTH - basket.width));
+        basket.y = Math.max(GAME_HEIGHT / 2, Math.min(y - offsetY - basket.height / 2, GAME_HEIGHT - basket.height));
+      }
+
+      function resetGame() {
+        objects = [];
+        score = 0;
+        lives = 3;
+        gameOver = false;
+        gameStarted = true;
+        currentLevel = 1;
+        levelScore = 0;
+        difficultyMultiplier = levels[0].difficultyMultiplier;
+        basket.x = GAME_WIDTH / 2 - basket.width / 2;
+        basket.y = GAME_HEIGHT - 80;
+        gameLoop();
+      }
+
+      // =====================================================
+      // INPUT HANDLING
+      // =====================================================
+
+      // Mouse movement
+      canvas.addEventListener("mousemove", (e) => {
+        if (!gameStarted || gameOver) return;
+        const pos = screenToGame(e.clientX, e.clientY);
+        moveBasket(pos.x, pos.y);
+      });
+
+      // Mouse click
+      canvas.addEventListener("click", (e) => {
+        if (!gameStarted) {
+          gameStarted = true;
+          gameLoop();
+        } else if (gameOver) {
+          resetGame();
+        }
+      });
+
+      // Touch movement
+      canvas.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        if (!gameStarted || gameOver) return;
+        const touch = e.touches[0];
+        const pos = screenToGame(touch.clientX, touch.clientY);
+        moveBasket(pos.x, pos.y);
+      }, { passive: false });
+
+      // Touch start (for starting/restarting game)
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        if (!gameStarted) {
+          gameStarted = true;
+          gameLoop();
+        } else if (gameOver) {
+          resetGame();
+        } else {
+          // Also move basket on touch start
+          const touch = e.touches[0];
+          const pos = screenToGame(touch.clientX, touch.clientY);
+          moveBasket(pos.x, pos.y);
+        }
+      }, { passive: false });
+
+      // Prevent default touch behaviors (scrolling, zooming)
+      document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+
+      // =====================================================
+      // MAIN GAME LOOP
+      // =====================================================
+
+      function gameLoop() {
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        if (!gameStarted) {
+          drawStartScreen();
+          return;
+        }
+
+        // Draw background
+        if (backgroundImage.complete) {
+          ctx.drawImage(backgroundImage, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
+
+        drawBasket();
+        drawObjects();
+        drawScore();
+        update();
+
+        if (gameOver) {
+          drawGameOver();
+        } else {
+          requestAnimationFrame(gameLoop);
+        }
+      }
+
+      // =====================================================
+      // INITIALIZATION
+      // =====================================================
+
+      // Wait for home screen image, then draw start screen
+      homeScreenImage.onload = () => {
+        drawStartScreen();
+      };
+
+      // Fallback: draw start screen after short delay even if image fails
+      setTimeout(() => {
+        if (!gameStarted) {
+          drawStartScreen();
+        }
+      }, 500);
+    </script>
+  </body>
+</html>
