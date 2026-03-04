@@ -766,7 +766,8 @@
       function moveBasket(x, y) {
         const offsetY = 100;
         basket.x = Math.max(0, Math.min(x - basket.width / 2, GAME_WIDTH - basket.width));
-        basket.y = Math.max(GAME_HEIGHT / 2, Math.min(y - offsetY - basket.height / 2, GAME_HEIGHT - basket.height));
+        // Allow basket from 150px from top (below HUD) to 20px from bottom
+        basket.y = Math.max(150, Math.min(y - offsetY - basket.height / 2, GAME_HEIGHT - basket.height - 20));
       }
 
       function resetGame() {
